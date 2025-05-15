@@ -1,0 +1,13 @@
+{{ define "loginHTMX" }}
+    <form method="POST" action="/login">
+        <h2>Login</h2>
+        Email: <input name="email"><br>
+        Password: <input type="password" name="password"><br>
+        <button type="submit">Login</button>
+    </form> 
+{{ end }}
+{{ define "login" }}
+    {{ template "baseheader" . }}
+    {{ template "loginHTMX" . }}
+    {{ template "basefooter" . }}
+{{ end }}

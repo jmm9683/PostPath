@@ -1,0 +1,19 @@
+{{define "baseheader"}}
+    <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>The Mininet</title>
+            <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+            <link rel="stylesheet" href="/styles/styles.css">
+        </head>
+        <body>
+            {{template "topnavHTMX" . }}
+	    <div id="body-content">
+{{end}}
+
+{{define "basefooter"}}
+	    </div>	
+        </body>
+    </html>
+{{end}}

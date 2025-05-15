@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  app:
+    build: ./code
+    container_name: go_app
+    expose:
+      - "8080"
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    depends_on:
+      - app
+    networks:
+      - webnet
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot -d yourdomain.com --email you@example.com --agree-tos --noninteractive
+    networks:
+      - webnet
+
+  certbot-renew:
+    image: certbot/certbot
+    container_name: certbot_renew
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./certbot/renew-and-reload.sh:/renew.sh
+    entrypoint: /bin/sh -c "/renew.sh"
+    networks:
+      - webnet
+
+networks:
+  webnet:

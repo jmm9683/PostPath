@@ -1,0 +1,18 @@
+{{ define "edittextHTMX" }}
+	<div id="text-{{.TextID}}">
+		<div id="edit-text-{{.TextID}}" class="rich-text" contenteditable="true">{{.Text}}</div>
+		<button 
+			hx-put="/editText/{{.PageID}}/{{.TextID}}" 
+			hx-vals="js:{text: document.getElementById('edit-text-{{.TextID}}').innerText}"
+			hx-target="#text-{{.TextID}}"
+			hx-swap="outerHTML">
+			Save
+		</button>
+		<button 
+			hx-delete="/editText/{{.PageID}}/{{.TextID}}" 
+			hx-target="#text-{{.TextID}}"
+			hx-swap="outerHTML">
+			Delete
+		</button>
+	</div>
+{{ end }}

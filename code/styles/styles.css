@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.top-nav {
+  background-color: #333;
+  padding: 10px;
+}
+
+.top-nav nav a {
+  color: white;
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.container {
+  display: flex;
+}
+
+.side-nav {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 10px;
+  min-height: calc(100vh - 50px); /* Adjust if top-nav height changes */
+}
+
+.side-nav nav a {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.rich-text {
+  border: 1px solid #ccc;
+  padding: 10px;
+  min-height: 150px;
+  margin-top: 20px;
+}

@@ -1,0 +1,14 @@
+{{ define "topnavHTMX" }}
+    <header class="top-nav">
+    <nav>
+     	{{ if .LoggedIn }}
+            <a href="/home">Home</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        {{ else }}
+            <a hx-get="/register" hx-target="#body-content" hx-swap="innerHTML" >Register</a>
+            <a hx-get="/login"    hx-target="#body-content" hx-swap="innerHTML">Login</a>
+        {{ end }}
+    </nav>
+  </header>
+{{ end }}

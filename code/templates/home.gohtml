@@ -1,0 +1,12 @@
+{{ define "homeHTMX"}}
+    <div id="home-content">
+        <div class="container">
+            {{template "pagetextHTMX" . }} 
+        </div>
+    </div>
+{{ end }}
+{{ define "home" }}
+    {{ template "baseheader" . }}
+    {{ template "homeHTMX" . }}
+    {{ template "basefooter" . }}
+{{ end }}

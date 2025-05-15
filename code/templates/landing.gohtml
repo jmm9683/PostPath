@@ -1,0 +1,11 @@
+{{ define "landingHTMX" }}
+    <div id="landing-content">
+        <h2>Welcome to Mininet.</h2>
+        <h4>A place to create your own web of ideas and discovery.</h4>
+    </div>
+{{ end }}
+{{ define "landing" }}
+    {{ template "baseheader" . }}
+    {{ template "landingHTMX" . }}
+    {{ template "basefooter" . }}
+{{ end }}

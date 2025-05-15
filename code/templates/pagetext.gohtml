@@ -1,0 +1,37 @@
+{{ define "pagetextHTMX" }}
+{{$PageTitles := .PageTitles}}
+<main id="main-content">
+    <h2>
+    ./{{range $index, $title := .PageTitles}}
+        {{if eq $title.ID 0}}<a hx-get="/page/0" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">{{$.Username}}</a>
+        {{else}}
+        / <a hx-get="/page{{range $i, $e := $PageTitles}}{{if le $i $index}}/{{$e.ID}}{{end}}{{end}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">{{$title.Title}}</a>
+        {{end}}
+    {{end}}
+    </h2>
+    <div id="page">
+        {{ range .Texts }}
+            {{ if .LinkID }}
+                {{ template "addlinkHTMX" . }}
+            {{ else }}
+                {{ template "addtextHTMX" . }}
+            {{end}}
+        {{ end }}
+    </div>
+
+    <div id="editor" class="rich-text" contenteditable="true">
+        Start typing to learn more...
+    </div>
+
+    <button 
+        hx-post="/addText/{{range $i, $e := .PageTitles}}{{if $i}}/{{end}}{{$e.ID}}{{end}}" 
+        hx-headers='{"Content-Type": "application/json"}'
+        hx-vals='js:{
+            "text": document.getElementById("editor").innerHTML, 
+        }'
+        hx-target="#page"
+        hx-swap="beforeend">
+        Save
+    </button>
+</main>
+{{ end }}
