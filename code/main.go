@@ -13,7 +13,7 @@ import (
 func main() {
 	handlers.SetupHelpers("templates/*.gohtml", []byte("very-secret-key"))
 
-	database.InitDB("./users.db")
+	database.InitDB("./mininetDatabase.db")
 	defer database.DB().Close()
 
 	mux := mux.NewRouter()

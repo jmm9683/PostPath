@@ -1,9 +1,9 @@
 {{ define "registerHTMX" }}
     <form hx-post="/register" hx-target="#body-content" hx-swap="innerHTML">
         <h2>Register</h2>
-        Username: <input name="username"><br>
-        Email: <input name="email"><br>
-        Password: <input type="password" name="password"><br>
+        Username: <input name="username" required><br>
+        Email: <input type="email" name="email" required><br>
+        Password: <input type="password" name="password" required><br>
         <button type="submit">Register</button>
     </form>
 {{ end }}

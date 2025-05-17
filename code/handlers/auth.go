@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"errors"
 	"mininet/database"
 	"net/http"
+	"net/mail"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -11,6 +13,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
 		email := r.FormValue("email")
+		if err := validateEmail(email); err != nil {
+			http.Error(w, "Invalid email.", http.StatusInternalServerError)
+			return
+		}
 		password := r.FormValue("password")
 
 		hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -77,4 +83,11 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		"LoggedIn": user != "",
 	}
 	render(w, r, "profile", data)
+}
+
+func validateEmail(email string) error {
+	if _, err := mail.ParseAddress(email); err != nil {
+		return errors.New("invalid email format")
+	}
+	return nil
 }

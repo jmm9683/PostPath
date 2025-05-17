@@ -55,7 +55,15 @@ func createPageTables() {
 		page_id INTEGER NOT NULL,
 		user_id INTEGER NOT NULL,
 		text TEXT NOT NULL,
+		is_link INTEGER DEFAULT 0,
+		link_id INTEGER,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		is_edited INTEGER DEFAULT 0,
+		path TEXT,
+		source INTEGER,
 		FOREIGN KEY(page_id) REFERENCES pages(id),
+		FOREIGN KEY(link_id) REFERENCES pages(id),
+		FOREIGN KEY(source) REFERENCES pages(id),
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);`
 	if _, err := db.Exec(pageTextTable); err != nil {
