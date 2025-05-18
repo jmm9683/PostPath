@@ -1,0 +1,7 @@
+
+Local:
+docker compose up --build
+
+Production:
+docker compose -f docker-compose.yml -f docker-compose-prod.yml up --build -d --remove-orphans
+
