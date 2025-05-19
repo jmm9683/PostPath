@@ -181,7 +181,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data := map[string]any{"PageID": pageId, "Text": text, "LinkID": linkID, "Path": path, "User": "Me", "CreatedAtStr": time.Now().Format("2006-01-02 15:04")}
+		data := map[string]any{"PageID": pageId, "Text": text, "LinkID": linkID, "Path": path, "User": user, "CreatedAtStr": time.Now().Format("2006-01-02 15:04")}
 		render(w, r, "addlink", data)
 	} else {
 		// More than one word: Normal text
@@ -196,7 +196,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to get inserted link id", http.StatusInternalServerError)
 			return
 		}
-		data := map[string]any{"PageID": pageId, "Text": text, "TextID": textId, "User": "Me", "CreatedAtStr": time.Now().Format("2006-01-02 15:04"), "Edited": 0}
+		data := map[string]any{"PageID": pageId, "Text": text, "TextID": textId, "User": user, "CreatedAtStr": time.Now().Format("2006-01-02 15:04"), "Edited": 0}
 		render(w, r, "addtext", data)
 	}
 }
@@ -239,6 +239,76 @@ func EditTextHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "edittext", data)
 }
 
+func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
+	user := getLoggedInUser(r)
+	if user == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userId := getUserId(user)
+	if userId == -1 {
+		http.Error(w, "User not found", http.StatusInternalServerError)
+		return
+	}
+
+	pageId := getPageId(r)
+	textId := getTextId(r)
+	if textId == -1 {
+		http.Error(w, "TextID missing", http.StatusNotFound)
+		return
+	}
+
+	rows, err := database.DB().Query(`
+		SELECT 
+			pagetext.page_id, 
+			pagetext.id, 
+			pagetext.text, 
+			users.username, 
+			pagetext.created_at,
+			pagetext.is_edited,
+			pagetext.path,
+			pagetext.source,
+			pages.title AS source_title
+		FROM pagetext
+		INNER JOIN users ON pagetext.user_id = users.id
+		LEFT JOIN pages ON pagetext.source = pages.id
+		WHERE pagetext.page_id = ? AND pagetext.id = ?
+		LIMIT 1
+	`, pageId, textId)
+
+	var text PageText
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var pt PageText
+			var createdAt time.Time
+
+			if err := rows.Scan(
+				&pt.PageID, &pt.TextID, &pt.Text,
+				&pt.User, &createdAt, &pt.Edited, &pt.SourcePath, &pt.Source, &pt.SourceTitle,
+			); err == nil {
+				pt.CreatedAtStr = createdAt.Format("2006-01-02 15:04")
+				text = pt
+				log.Println(text)
+			}
+		}
+	}
+
+	data := map[string]any{
+		"PageID":       pageId,
+		"TextID":       textId,
+		"Text":         text.Text,
+		"User":         text.User,
+		"CreatedAtStr": text.CreatedAtStr,
+		"Edited":       text.Edited,
+		"Source":       text.Source,
+		"SourcePath":   text.SourcePath,
+		"SourceTitle":  text.SourceTitle,
+	}
+	render(w, r, "addtext", data)
+}
+
 func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 	user := getLoggedInUser(r)
 	if user == "" {
@@ -277,7 +347,7 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{"PageID": pageId, "Text": text, "TextID": textId, "User": "Me", "CreatedAtStr": "Just Now", "Edited": 1}
+	data := map[string]any{"PageID": pageId, "Text": text, "TextID": textId, "User": user, "CreatedAtStr": "Just Now", "Edited": 1}
 	render(w, r, "addtext", data)
 }
 

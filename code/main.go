@@ -29,6 +29,7 @@ func main() {
 	mux.HandleFunc("/page/{path:.*}", handlers.PageHandler).Methods("GET")
 	mux.HandleFunc("/addText/{path:.*}", handlers.AddTextHandler).Methods("POST")
 	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.EditTextHandler).Methods("GET")
+	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}/cancel", handlers.EditTextCancelHandler).Methods("GET")
 	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.UpdateTextHandler).Methods("PUT")
 	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.DeleteTextHandler).Methods("DELETE")
 

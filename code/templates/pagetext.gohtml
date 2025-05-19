@@ -34,4 +34,29 @@
         Save
     </button>
 </main>
+
+<script>
+    const editor = document.getElementById("editor");
+    const placeholder = "Start typing to learn more...";
+
+    // Placeholder behavior
+    editor.addEventListener("focus", () => {
+        if (editor.innerText.trim() === placeholder) {
+            editor.innerHTML = "";
+        }
+    });
+
+    editor.addEventListener("blur", () => {
+        if (editor.innerText.trim() === "") {
+            editor.innerHTML = placeholder;
+        }
+    });
+
+    // Reset editor after HTMX request completes
+    document.body.addEventListener("htmx:afterRequest", (event) => {
+        if (editor) {
+            editor.innerHTML = placeholder;
+        }
+    });
+</script>
 {{ end }}

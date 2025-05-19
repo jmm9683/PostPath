@@ -9,6 +9,12 @@
 			Save
 		</button>
 		<button 
+			hx-get="/editText/{{.PageID}}/{{.TextID}}/cancel" 
+			hx-target="#text-{{.TextID}}"
+			hx-swap="outerHTML">
+			Cancel
+		</button>
+		<button 
 			hx-delete="/editText/{{.PageID}}/{{.TextID}}" 
 			hx-target="#text-{{.TextID}}"
 			hx-swap="outerHTML">

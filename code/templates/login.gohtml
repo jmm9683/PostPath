@@ -1,10 +1,17 @@
 {{ define "loginHTMX" }}
-    <form method="POST" action="/login">
-        <h2>Login</h2>
-        Email: <input name="email"><br>
-        Password: <input type="password" name="password"><br>
-        <button type="submit">Login</button>
-    </form> 
+    <form method="POST" action="/login" id="login-form">
+    <h2>Login</h2>
+    {{ if .Flash }}
+        <div style="color: green;">{{ .Flash }}</div>
+    {{ end }}
+    {{ if .Error }}
+        <div style="color: red;">{{ .Error }}</div>
+    {{ end }}
+
+    Email: <input name="email" value="{{ .Email }}"><br>
+    Password: <input type="password" name="password"><br>
+    <button type="submit">Login</button>
+</form> 
 {{ end }}
 {{ define "login" }}
     {{ template "baseheader" . }}

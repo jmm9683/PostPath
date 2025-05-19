@@ -1,8 +1,13 @@
 {{ define "registerHTMX" }}
     <form hx-post="/register" hx-target="#body-content" hx-swap="innerHTML">
         <h2>Register</h2>
-        Username: <input name="username" required><br>
-        Email: <input type="email" name="email" required><br>
+
+        {{ if .Error }}
+            <div style="color: red;">{{ .Error }}</div>
+        {{ end }}
+
+        Username: <input name="username" value="{{ .Username }}" required><br>
+        Email: <input type="email" name="email" value="{{ .Email }}" required><br>
         Password: <input type="password" name="password" required><br>
         <button type="submit">Register</button>
     </form>
