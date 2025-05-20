@@ -25,6 +25,7 @@ func main() {
 	mux.HandleFunc("/login", handlers.LoginHandler)
 	mux.HandleFunc("/logout", handlers.LogoutHandler)
 	mux.HandleFunc("/profile", handlers.ProfileHandler).Methods("GET")
+	mux.HandleFunc("/profile/{username}", handlers.ProfilesHandler).Methods("GET")
 	mux.HandleFunc("/home", handlers.PageHandler).Methods("GET")
 	mux.HandleFunc("/page/{path:.*}", handlers.PageHandler).Methods("GET")
 	mux.HandleFunc("/addText/{path:.*}", handlers.AddTextHandler).Methods("POST")

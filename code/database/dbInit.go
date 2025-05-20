@@ -70,6 +70,21 @@ func createPageTables() {
 		log.Fatal(err)
 	}
 
+	pageTextTable := `
+	CREATE TABLE IF NOT EXISTS profiles ( 
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		text TEXT NOT NULL,
+		is_link INTEGER DEFAULT 0,
+		link_id INTEGER,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(link_id) REFERENCES pages(id),
+		FOREIGN KEY(user_id) REFERENCES users(id)
+	);`
+	if _, err := db.Exec(pageTextTable); err != nil {
+		log.Fatal(err)
+	}
+
 	// Insert Home page if it doesn't exist
 	_, err := db.Exec(`INSERT OR IGNORE INTO pages (id, title) VALUES (0, 'Home')`)
 	if err != nil {

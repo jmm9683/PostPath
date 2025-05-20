@@ -5,6 +5,7 @@ import (
 	"mininet/database"
 	"net/http"
 	"net/mail"
+	"regexp"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +25,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		// Basic validations
 		if username == "" || email == "" || password == "" {
 			data["Error"] = "All fields are required."
+			render(w, r, "register", data)
+			return
+		}
+
+		matched, _ := regexp.MatchString(`^[a-zA-Z0-9]+$`, username)
+		if !matched {
+			data["Error"] = "Username can only contain letters and numbers."
 			render(w, r, "register", data)
 			return
 		}
@@ -136,7 +144,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]any{
 		"Username": user,
-		"LoggedIn": user != "",
 	}
 	render(w, r, "profile", data)
 }
