@@ -5,9 +5,9 @@
     {{range $index, $title := .PageTitles}}
         {{if eq $title.Title "Profile"}}
             @{{$.Username}}
-        {{else if eq $title.ID 0}}<a hx-get="/page/0" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">./Mininet</a>
+        {{else if eq $title.ID 0}}<a hx-get="/page/0" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">./Mininet</a>
         {{else}}
-        / <a hx-get="/page{{range $i, $e := $PageTitles}}{{if le $i $index}}/{{$e.ID}}{{end}}{{end}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">{{$title.Title}}</a>
+        / <a hx-get="/page{{range $i, $e := $PageTitles}}{{if le $i $index}}/{{$e.ID}}{{end}}{{end}}" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">{{$title.Title}}</a>
         {{end}}
     {{end}}
     </h2>
@@ -21,15 +21,13 @@
         {{ end }}
     </div>
     {{ if .Editable }}
-    <div id="editor" class="rich-text" contenteditable="true">
-        Start typing to learn more...
-    </div>
+    <textarea id="editor" placeholder="Start typing to learn more..."></textarea>
 
     <button 
         hx-post="/addText/{{range $i, $e := .PageTitles}}{{if $i}}/{{end}}{{$e.ID}}{{end}}" 
         hx-headers='{"Content-Type": "application/json"}'
         hx-vals='js:{
-            "text": document.getElementById("editor").innerHTML, 
+            "text": document.getElementById("editor").value
         }'
         hx-target="#page"
         hx-swap="beforeend">
@@ -37,29 +35,4 @@
     </button>
     {{ end }}
 </main>
-
-<script>
-    const editor = document.getElementById("editor");
-    const placeholder = "Start typing to learn more...";
-
-    // Placeholder behavior
-    editor.addEventListener("focus", () => {
-        if (editor.innerText.trim() === placeholder) {
-            editor.innerHTML = "";
-        }
-    });
-
-    editor.addEventListener("blur", () => {
-        if (editor.innerText.trim() === "") {
-            editor.innerHTML = placeholder;
-        }
-    });
-
-    // Reset editor after HTMX request completes
-    document.body.addEventListener("htmx:afterRequest", (event) => {
-        if (editor) {
-            editor.innerHTML = placeholder;
-        }
-    });
-</script>
 {{ end }}

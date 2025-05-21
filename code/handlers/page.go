@@ -145,9 +145,8 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 	lText := strings.ToLower(text)
 	log.Printf("Adding text to page ID: %v with sourcePath %s and source %v", pageId, sourcePath, source)
 
-	if len(strings.Fields(text)) == 1 && strings.HasPrefix(lText, "#") && len(path) > 0 && path[0] != ProfilePageID {
+	if len(strings.Fields(text)) == 1 && len(path) > 0 && path[0] != ProfilePageID {
 		// One word: Handle as a link
-		lText = lText[1:] //strip prefix
 		text = lText
 		var linkID int
 		err := database.DB().QueryRow(`SELECT id FROM pages WHERE title = ?`, lText).Scan(&linkID)

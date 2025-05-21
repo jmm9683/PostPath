@@ -15,5 +15,37 @@
 {{define "basefooter"}}
 	    </div>	
         </body>
+        <script>
+            function initEditTextarea(TextID) {
+                const textarea = document.getElementById(`edit-text-${TextID}`);
+                const cancelBtn = document.getElementById(`cancel-btn-${TextID}`);
+                const wrapper = textarea?.parentElement;
+
+                if (!textarea || !cancelBtn || !wrapper) return;
+
+                wrapper.addEventListener("focusin", () => {
+                    wrapper.dataset.focusInside = "true";
+                });
+
+                wrapper.addEventListener("focusout", () => {
+                    setTimeout(() => {
+                        if (!wrapper.contains(document.activeElement)) {
+                            cancelBtn.click();
+                        }
+                    }, 0);
+                });
+                textarea.focus();
+            }
+
+            document.body.addEventListener("htmx:afterSwap", (event) => {
+                // Look for an updated element with an edit-text ID
+                const updated = event.target.querySelector("[id^='edit-text-']");
+                if (updated) {
+                    const id = updated.id.replace("edit-text-", "");
+                    initEditTextarea(id);
+                }
+            });
+        </script>
+
     </html>
 {{end}}
