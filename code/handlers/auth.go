@@ -135,19 +135,6 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	data := map[string]any{
-		"Username": user,
-	}
-	render(w, r, "profile", data)
-}
-
 func validateEmail(email string) error {
 	if _, err := mail.ParseAddress(email); err != nil {
 		return errors.New("invalid email format")

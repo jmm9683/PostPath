@@ -3,6 +3,6 @@
 	<p hx-get="/editText/{{.PageID}}/{{.TextID}}" hx-trigger="click" hx-swap="outerHTML" hx-target="#text-{{.TextID}}">
 		{{.Text}}
 	</p>
-	<small>{{.User}} • {{.CreatedAtStr}} {{ if .Edited }}• Edited {{ end }} {{if and .Source (gt .Source 0)}}<span id="source-{{.Source}}-{{.TextID}}" hx-get="/page/{{.SourcePath}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">• {{.SourceTitle}}</span>{{end}}</small>
+	<small><span id="profile-{{.UserID}}" hx-get="/profile/{{.UserID}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">@{{.User}}</span> • {{.CreatedAtStr}} {{ if .Edited }}• Edited {{ end }} {{if and .Source (gt .Source 1)}}<span id="source-{{.Source}}-{{.TextID}}" hx-get="/page/{{.SourcePath}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">• {{.SourceTitle}}</span>{{end}}</small>
 </div>
 {{ end }}

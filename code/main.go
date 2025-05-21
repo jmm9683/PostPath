@@ -16,6 +16,8 @@ func main() {
 	database.InitDB("./mininetDatabase.db")
 	defer database.DB().Close()
 
+	handlers.HandlerInit()
+
 	mux := mux.NewRouter()
 
 	// Routes
@@ -24,8 +26,8 @@ func main() {
 	mux.HandleFunc("/register", handlers.RegisterHandler)
 	mux.HandleFunc("/login", handlers.LoginHandler)
 	mux.HandleFunc("/logout", handlers.LogoutHandler)
-	mux.HandleFunc("/profile", handlers.ProfileHandler).Methods("GET")
-	mux.HandleFunc("/profile/{username}", handlers.ProfilesHandler).Methods("GET")
+	mux.HandleFunc("/profile", handlers.ProfilePageHandler).Methods("GET")
+	mux.HandleFunc("/profile/{path:.*}", handlers.ProfilePageHandler).Methods("GET")
 	mux.HandleFunc("/home", handlers.PageHandler).Methods("GET")
 	mux.HandleFunc("/page/{path:.*}", handlers.PageHandler).Methods("GET")
 	mux.HandleFunc("/addText/{path:.*}", handlers.AddTextHandler).Methods("POST")

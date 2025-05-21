@@ -2,8 +2,10 @@
 {{$PageTitles := .PageTitles}}
 <main id="main-content">
     <h2>
-    ./{{range $index, $title := .PageTitles}}
-        {{if eq $title.ID 0}}<a hx-get="/page/0" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">{{$.Username}}</a>
+    {{range $index, $title := .PageTitles}}
+        {{if eq $title.Title "Profile"}}
+            @{{$.Username}}
+        {{else if eq $title.ID 0}}<a hx-get="/page/0" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">./Mininet</a>
         {{else}}
         / <a hx-get="/page{{range $i, $e := $PageTitles}}{{if le $i $index}}/{{$e.ID}}{{end}}{{end}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">{{$title.Title}}</a>
         {{end}}
@@ -18,7 +20,7 @@
             {{end}}
         {{ end }}
     </div>
-
+    {{ if .Editable }}
     <div id="editor" class="rich-text" contenteditable="true">
         Start typing to learn more...
     </div>
@@ -33,6 +35,7 @@
         hx-swap="beforeend">
         Save
     </button>
+    {{ end }}
 </main>
 
 <script>

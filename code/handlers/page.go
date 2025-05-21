@@ -16,6 +16,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, r.URL.Path, nil)
 }
 
+var HomePageID, ProfilePageID int
+
 type PageTitle struct {
 	ID    int
 	Title string
@@ -27,12 +29,38 @@ type PageText struct {
 	Text         string
 	LinkID       int
 	Path         []int
+	UserID       int
 	User         string
 	CreatedAtStr string
 	Edited       int
 	SourcePath   string
 	Source       int
 	SourceTitle  string
+}
+
+func HandlerInit() {
+	rows, err := database.DB().Query(`SELECT id, title FROM pages WHERE title IN (?, ?)`, "Home", "Profile")
+	if err != nil {
+		log.Fatalf("failed to query page IDs: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int
+		var title string
+		if err := rows.Scan(&id, &title); err != nil {
+			log.Fatalf("failed to scan row: %v", err)
+		}
+		switch title {
+		case "Home":
+			HomePageID = id
+		case "Profile":
+			ProfilePageID = id
+		}
+	}
+	if HomePageID == 0 && ProfilePageID == 0 {
+		log.Fatalf("missing required pages: home=%d, profile=%d", HomePageID, ProfilePageID)
+	}
 }
 
 func PageHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,74 +75,38 @@ func PageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusInternalServerError)
 		return
 	}
-
 	path := getPath(r)
-	pageId := path[len(path)-1]
-	var pageTitles []PageTitle
-
-	for _, id := range path {
-		var title string
-		err := database.DB().QueryRow(`SELECT title FROM pages WHERE id = ?`, id).Scan(&title)
-		if err != nil {
-			http.Error(w, "Page not found", http.StatusNotFound)
-			return
-		}
-
-		pageTitles = append(pageTitles, PageTitle{ID: id, Title: title})
+	if path == nil {
+		path = []int{HomePageID}
 	}
-	log.Println(pageTitles)
-	log.Println("Loading text for " + pageTitles[len(pageTitles)-1].Title)
+	if path[len(path)-1] == ProfilePageID {
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+		return
+	}
+	renderPage(w, r, path, user, userId, true, false)
+}
 
-	rows, err := database.DB().Query(`
-		SELECT 
-		pagetext.page_id, 
-		pagetext.id, 
-		pagetext.text, 
-		pagetext.link_id, 
-		users.username, 
-		pagetext.created_at,
-		pagetext.is_edited,
-		pagetext.path,
-		pagetext.source,
-		pages.title AS source_title
-	FROM pagetext
-	INNER JOIN users ON pagetext.user_id = users.id
-	LEFT JOIN pages ON pagetext.source = pages.id
-	WHERE pagetext.page_id = ?
-	ORDER BY pagetext.created_at ASC
-	`, pageId)
-
-	var texts []PageText
-	if err == nil {
-		defer rows.Close()
-		for rows.Next() {
-			var pt PageText
-			var linkId sql.NullInt64
-			var createdAt time.Time
-
-			if err := rows.Scan(
-				&pt.PageID, &pt.TextID, &pt.Text, &linkId,
-				&pt.User, &createdAt, &pt.Edited, &pt.SourcePath, &pt.Source, &pt.SourceTitle,
-			); err == nil {
-				if linkId.Valid {
-					pt.LinkID = int(linkId.Int64)
-				}
-				pt.Path = path
-				pt.CreatedAtStr = createdAt.Format("2006-01-02 15:04")
-				texts = append(texts, pt)
-			}
-		}
+func ProfilePageHandler(w http.ResponseWriter, r *http.Request) {
+	user := getLoggedInUser(r)
+	if user == "" {
+		render(w, r, "landing", nil)
+		return
 	}
 
-	data := map[string]any{
-		"Username":   user,
-		"LoggedIn":   user != "",
-		"PageID":     pageId,
-		"PageTitles": pageTitles,
-		"Texts":      texts,
+	userId := getUserId(user)
+	if userId == -1 {
+		http.Error(w, "User not found", http.StatusInternalServerError)
+		return
 	}
-
-	render(w, r, "home", data)
+	path := getPath(r)
+	var profileId int
+	if path == nil {
+		profileId = userId
+	} else {
+		profileId = path[len(path)-1]
+		user = getUsername(profileId)
+	}
+	renderPage(w, r, []int{ProfilePageID}, user, profileId, userId == profileId, true)
 }
 
 func AddTextHandler(w http.ResponseWriter, r *http.Request) {
@@ -153,9 +145,10 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 	lText := strings.ToLower(text)
 	log.Printf("Adding text to page ID: %v with sourcePath %s and source %v", pageId, sourcePath, source)
 
-	if len(strings.Fields(text)) == 1 {
+	if len(strings.Fields(text)) == 1 && strings.HasPrefix(lText, "#") && len(path) > 0 && path[0] != ProfilePageID {
 		// One word: Handle as a link
-
+		lText = lText[1:] //strip prefix
+		text = lText
 		var linkID int
 		err := database.DB().QueryRow(`SELECT id FROM pages WHERE title = ?`, lText).Scan(&linkID)
 		if err == sql.ErrNoRows {
@@ -375,12 +368,106 @@ func DeleteTextHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Helper Functions
+func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string, userId int, editable bool, filtered bool) {
+	pageId := path[len(path)-1]
+	var pageTitles []PageTitle
+
+	for _, id := range path {
+		var title string
+		err := database.DB().QueryRow(`SELECT title FROM pages WHERE id = ?`, id).Scan(&title)
+		if err != nil {
+			http.Error(w, "Page not found", http.StatusNotFound)
+			return
+		}
+
+		pageTitles = append(pageTitles, PageTitle{ID: id, Title: title})
+	}
+	log.Println(pageTitles)
+	log.Println("Loading text for " + pageTitles[len(pageTitles)-1].Title)
+	var rows *sql.Rows
+	var err error
+	if !filtered {
+		rows, err = database.DB().Query(`
+		SELECT 
+			pagetext.page_id, 
+			pagetext.id, 
+			pagetext.text, 
+			pagetext.link_id, 
+			users.id,
+			users.username, 
+			pagetext.created_at,
+			pagetext.is_edited,
+			pagetext.path,
+			pagetext.source,
+			pages.title AS source_title
+		FROM pagetext
+		INNER JOIN users ON pagetext.user_id = users.id
+		LEFT JOIN pages ON pagetext.source = pages.id
+		WHERE pagetext.page_id = ?
+		ORDER BY pagetext.created_at ASC
+		`, pageId)
+	} else {
+		rows, err = database.DB().Query(`
+		SELECT 
+			pagetext.page_id, 
+			pagetext.id, 
+			pagetext.text, 
+			pagetext.link_id, 
+			users.id,
+			users.username, 
+			pagetext.created_at,
+			pagetext.is_edited,
+			pagetext.path,
+			pagetext.source,
+			pages.title AS source_title
+		FROM pagetext
+		INNER JOIN users ON pagetext.user_id = users.id
+		LEFT JOIN pages ON pagetext.source = pages.id
+		WHERE pagetext.page_id = ? and pagetext.user_id = ?
+		ORDER BY pagetext.created_at ASC
+		`, pageId, userId)
+	}
+	var texts []PageText
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var pt PageText
+			var linkId sql.NullInt64
+			var createdAt time.Time
+
+			if err := rows.Scan(
+				&pt.PageID, &pt.TextID, &pt.Text, &linkId, &pt.UserID,
+				&pt.User, &createdAt, &pt.Edited, &pt.SourcePath, &pt.Source, &pt.SourceTitle,
+			); err == nil {
+				if linkId.Valid {
+					pt.LinkID = int(linkId.Int64)
+				}
+				pt.Path = path
+				pt.CreatedAtStr = createdAt.Format("2006-01-02 15:04")
+				texts = append(texts, pt)
+			}
+		}
+	}
+
+	data := map[string]any{
+		"Username":   user,
+		"LoggedIn":   user != "",
+		"PageID":     pageId,
+		"PageTitles": pageTitles,
+		"Texts":      texts,
+		"Editable":   editable,
+	}
+
+	render(w, r, "home", data)
+
+}
+
 func getPageId(r *http.Request) int {
 	vars := mux.Vars(r)
 	idStr := vars["pageId"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		id = 0 //default to home
+		id = HomePageID //default to home
 	}
 	return id
 }
@@ -404,8 +491,7 @@ func getPath(r *http.Request) []int {
 	for _, s := range segments {
 		id, err := strconv.Atoi(s)
 		if err != nil {
-			ids = []int{0}
-			return ids
+			return nil
 		}
 		ids = append(ids, id)
 	}

@@ -30,7 +30,7 @@ func createUserTable() {
 	query := `
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		username TEXT NOT NULL,
+		username TEXT NOT NULL UNIQUE,
 		email TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL
 	);`
@@ -43,7 +43,7 @@ func createPageTables() {
 	pageTable := `
 	CREATE TABLE IF NOT EXISTS pages (
 		id INTEGER PRIMARY KEY,
-		title TEXT NOT NULL
+		title TEXT NOT NULL UNIQUE
 	);`
 	if _, err := db.Exec(pageTable); err != nil {
 		log.Fatal(err)
@@ -70,23 +70,13 @@ func createPageTables() {
 		log.Fatal(err)
 	}
 
-	pageTextTable := `
-	CREATE TABLE IF NOT EXISTS profiles ( 
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		user_id INTEGER NOT NULL,
-		text TEXT NOT NULL,
-		is_link INTEGER DEFAULT 0,
-		link_id INTEGER,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY(link_id) REFERENCES pages(id),
-		FOREIGN KEY(user_id) REFERENCES users(id)
-	);`
-	if _, err := db.Exec(pageTextTable); err != nil {
-		log.Fatal(err)
-	}
-
 	// Insert Home page if it doesn't exist
 	_, err := db.Exec(`INSERT OR IGNORE INTO pages (id, title) VALUES (0, 'Home')`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Insert Home page if it doesn't exist
+	_, err = db.Exec(`INSERT OR IGNORE INTO pages (id, title) VALUES (1, 'Profile')`)
 	if err != nil {
 		log.Fatal(err)
 	}

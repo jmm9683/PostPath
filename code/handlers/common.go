@@ -42,6 +42,17 @@ func getUserId(user string) int {
 	}
 	return userId
 }
+
+func getUsername(userId int) string {
+	// Get User ID
+	var user string
+	err := database.DB().QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&user)
+	if err != nil {
+		return ""
+	}
+	return user
+}
+
 func render(w http.ResponseWriter, r *http.Request, page string, data map[string]any) {
 	tplName := page
 	if data == nil {
