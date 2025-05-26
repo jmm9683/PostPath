@@ -3,49 +3,65 @@
         <html>
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <title>The Mininet</title>
             <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+            <script src="https://unpkg.com/htmx.org/dist/ext/class-tools.js"></script>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
             <link rel="stylesheet" href="/styles/styles.css">
         </head>
-        <body>
+        <body hx-ext="class-tools">
             {{template "topnavHTMX" . }}
-	    <div id="body-content">
+            <div id="body-content">
 {{end}}
 
 {{define "basefooter"}}
-	    </div>	
-        </body>
-        <script>
-            function initEditTextarea(TextID) {
-                const textarea = document.getElementById(`edit-text-${TextID}`);
-                const cancelBtn = document.getElementById(`cancel-btn-${TextID}`);
-                const wrapper = textarea?.parentElement;
+            </div>
+            <script>
+                function initEditTextarea(TextID) {
+                    const textarea = document.getElementById(`edit-text-${TextID}`);
+                    const saveBtn = document.getElementById(`save-btn-${TextID}`);
+                    const wrapper = textarea?.parentElement;
 
-                if (!textarea || !cancelBtn || !wrapper) return;
+                    if (!textarea || !saveBtn || !wrapper) return;
 
-                wrapper.addEventListener("focusin", () => {
-                    wrapper.dataset.focusInside = "true";
-                });
+                    wrapper.addEventListener("focusin", () => {
+                        wrapper.dataset.focusInside = "true";
+                    });
 
-                wrapper.addEventListener("focusout", () => {
-                    setTimeout(() => {
-                        if (!wrapper.contains(document.activeElement)) {
-                            cancelBtn.click();
-                        }
-                    }, 0);
-                });
-                textarea.focus();
-            }
-
-            document.body.addEventListener("htmx:afterSwap", (event) => {
-                // Look for an updated element with an edit-text ID
-                const updated = event.target.querySelector("[id^='edit-text-']");
-                if (updated) {
-                    const id = updated.id.replace("edit-text-", "");
-                    initEditTextarea(id);
+                    wrapper.addEventListener("focusout", () => {
+                        setTimeout(() => {
+                            if (!wrapper.contains(document.activeElement)) {
+                                saveBtn.click();
+                            }
+                        }, 0);
+                    });
+                    textarea.focus();
                 }
-            });
-        </script>
 
+                document.body.addEventListener("htmx:afterSwap", (event) => {
+                    // Look for an updated element with an edit-text ID
+                    const updated = event.target.querySelector("[id^='edit-text-']");
+                    if (updated) {
+                        const id = updated.id.replace("edit-text-", "");
+                        initEditTextarea(id);
+                    }
+                });
+
+                // Add animation triggers
+                document.body.addEventListener('htmx:beforeSwap', function(evt) {
+                    if (evt.detail.target.id === 'page') {
+                        evt.detail.shouldSwap = true;
+                        evt.detail.target.classList.add('typewriter-enter');
+                    }
+                });
+
+                document.body.addEventListener('htmx:afterSwap', function(evt) {
+                    if (evt.detail.target.id === 'page') {
+                        evt.detail.target.classList.add('typewriter-enter-active');
+                    }
+                });
+            </script>
+        </body>
     </html>
 {{end}}

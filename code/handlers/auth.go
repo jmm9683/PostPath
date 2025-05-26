@@ -85,9 +85,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if getLoggedInUser(r) != "" {
-		http.Redirect(w, r, "/home", http.StatusSeeOther)
-		return
+	user := getLoggedInUser(r)
+	if user != "" {
+		userId := getUserId(user)
+		if userId != -1 {
+			render(w, r, "home", nil)
+			return
+		}
 	}
 
 	session, _ := store.Get(r, "session")

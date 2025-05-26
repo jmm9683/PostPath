@@ -72,7 +72,7 @@ func PageHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId := getUserId(user)
 	if userId == -1 {
-		http.Error(w, "User not found", http.StatusInternalServerError)
+		render(w, r, "landing", nil)
 		return
 	}
 	path := getPath(r)
@@ -95,7 +95,7 @@ func ProfilePageHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId := getUserId(user)
 	if userId == -1 {
-		http.Error(w, "User not found", http.StatusInternalServerError)
+		render(w, r, "landing", nil)
 		return
 	}
 	path := getPath(r)
@@ -197,6 +197,7 @@ func EditTextHandler(w http.ResponseWriter, r *http.Request) {
 	user := getLoggedInUser(r)
 	if user == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		render(w, r, "landing", nil)
 		return
 	}
 

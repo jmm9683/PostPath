@@ -4,8 +4,7 @@
 	   hx-trigger="click" 
 	   hx-swap="outerHTML" 
 	   hx-target="#text-{{.TextID}}"
-	   style="white-space: pre-wrap;">
-		{{.Text}}
+	   style="white-space: pre-wrap;">{{.Text}}
 	</p>
 	<small><span id="profile-{{.UserID}}" hx-get="/profile/{{.UserID}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">@{{.User}}</span> • {{.CreatedAtStr}} {{ if .Edited }}• Edited {{ end }} {{if and .Source (gt .Source 1)}}<span id="source-{{.Source}}-{{.TextID}}" hx-get="/page/{{.SourcePath}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">• {{.SourceTitle}}</span>{{end}}</small>
 </div>

@@ -21,18 +21,35 @@
         {{ end }}
     </div>
     {{ if .Editable }}
-    <textarea id="editor" placeholder="Start typing to learn more..."></textarea>
+    <div class="editor-wrapper">
+        <textarea 
+            id="editor" 
+            class="rich-text" 
+            placeholder="Start typing to learn more..."
+            aria-label="Text editor"
+            tabindex="0"></textarea>
+    </div>
 
     <button 
+        id="editor-save-btn"
         hx-post="/addText/{{range $i, $e := .PageTitles}}{{if $i}}/{{end}}{{$e.ID}}{{end}}" 
         hx-headers='{"Content-Type": "application/json"}'
         hx-vals='js:{
             "text": document.getElementById("editor").value
         }'
         hx-target="#page"
-        hx-swap="beforeend">
+        hx-swap="beforeend"
+        tabindex="0"
+        aria-label="Save text">
         Save
     </button>
     {{ end }}
 </main>
+
+<script>
+    document.addEventListener('htmx:afterRequest', function (e) {
+    document.getElementById('editor').value = '';
+    });
+
+</script>
 {{ end }}
