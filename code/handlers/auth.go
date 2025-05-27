@@ -85,15 +85,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user != "" {
-		userId := getUserId(user)
-		if userId != -1 {
-			render(w, r, "home", nil)
-			return
+	if r.Method != http.MethodPost {
+		user := getLoggedInUser(r)
+		if user != "" {
+			userId := getUserId(user)
+			if userId != -1 {
+				render(w, r, "home", nil)
+				return
+			}
 		}
 	}
-
 	session, _ := store.Get(r, "session")
 	flashes := session.Flashes()
 	_ = session.Save(r, w)

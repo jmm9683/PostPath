@@ -29,6 +29,11 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+.top-nav nav {
+  display: flex;
+  align-items: center;
+}
+
 .top-nav nav a {
   color: var(--text-primary);
   margin-right: 1.5rem;
@@ -38,6 +43,27 @@ body {
 
 .top-nav nav a:hover {
   color: var(--accent);
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.nav-svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--text-primary);
+}
+
+.nav-logout {
+  margin-left: auto;
+}
+
+.nav-divider {
+  color: var(--border);
+  margin: 0 1rem;
 }
 
 .container {
@@ -141,6 +167,10 @@ button:hover {
   background-color: var(--accent-secondary);
 }
 
+div[id^="text-"] > p {
+  white-space: pre-wrap;
+}
+
 /* Link styling - specifically for addlink elements and source elements */
 div[id^="link-"] > p {
   position: relative;
@@ -181,6 +211,17 @@ span[id^="profile-"]:hover,
 span[id^="source-"]:hover {
   color: var(--accent-secondary);
   border-bottom-color: var(--accent-secondary);
+}
+
+#profile-nan {
+  color: var(--text-primary);
+  cursor: default;
+  border-bottom: none;
+}
+
+#profile-nan:hover {
+  color: var(--text-primary);
+  border-bottom: none;
 }
 
 #editor-save-btn {
@@ -232,6 +273,40 @@ span[id^="source-"]:hover {
   width: 1.25rem;
   height: 1.25rem;
   fill: currentColor;
+}
+
+/* Landing page styles */
+.landing-container {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: left;
+}
+
+.landing-content h1 {
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.landing-content p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.landing-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.landing-buttons button {
+  font-size: 1.1rem;
+  padding: 0.75rem 2rem;
+  margin-bottom: 2rem;
 }
 
 /* Mobile responsive styles */

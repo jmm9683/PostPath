@@ -1,8 +1,15 @@
 {{ define "landingHTMX" }}
-    <div id="landing-content">
-        <h2>Welcome to Mininet.</h2>
-        <h4>A place to create your own web of ideas and discovery.</h4>
+<div class="landing-container">
+    <div class="landing-content">
+        <h1>Welcome to Mininet</h1>
+        <p>A minimal social network for getting lost in your thoughts.</p>
+        <div class="landing-buttons">
+            <button hx-get="/login" hx-target="#body-content" hx-swap="innerHTML" hx-push-url="true">Login</button>
+            <button hx-get="/register" hx-target="#body-content" hx-swap="innerHTML" hx-push-url="true">Register</button>
+        </div>
+        <small><span id="profile-nan">@Mininet_Admins</span> • 2025-04-20 13:50</small>
     </div>
+</div>
 {{ end }}
 {{ define "landing" }}
     {{ template "baseheader" . }}

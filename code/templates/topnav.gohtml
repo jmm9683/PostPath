@@ -1,14 +1,24 @@
 {{ define "topnavHTMX" }}
     <header class="top-nav">
     <nav>
-     	{{ if .LoggedIn }}
-            <a href="/home">Home</a>
-            <a href="/profile">Profile</a>
-            <a href="/logout">Logout</a>
+        {{ if .LoggedIn }}
+            <a href="/home" class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-svg">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+            </a>
+            <span class="nav-divider">|</span>
+            <a href="/profile">My Page</a>
+            <a href="/logout" class="nav-logout">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-svg">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+            </a>
         {{ else }}
-            <a hx-get="/register" hx-target="#body-content" hx-swap="innerHTML" >Register</a>
-            <a hx-get="/login"    hx-target="#body-content" hx-swap="innerHTML">Login</a>
+          <a href="/home" class="nav-icon">
+                ./Mininet
+            </a>
         {{ end }}
     </nav>
-  </header>
+    </header>
 {{ end }}

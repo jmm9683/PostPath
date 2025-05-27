@@ -36,6 +36,11 @@ func main() {
 	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.UpdateTextHandler).Methods("PUT")
 	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.DeleteTextHandler).Methods("DELETE")
 
+	// Handle 404 by redirecting to home page
+	mux.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/", http.StatusFound)
+	})
+
 	log.Println("Server running at http://localhost:8080")
 	http.ListenAndServe(":8080", mux)
 }

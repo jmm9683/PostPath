@@ -12,10 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, r, r.URL.Path, nil)
-}
-
 var HomePageID, ProfilePageID int
 
 type PageTitle struct {

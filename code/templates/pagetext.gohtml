@@ -12,12 +12,19 @@
     {{end}}
     </h2>
     <div id="page">
-        {{ range .Texts }}
-            {{ if .LinkID }}
-                {{ template "addlinkHTMX" . }}
-            {{ else }}
-                {{ template "addtextHTMX" . }}
-            {{end}}
+        {{ if and (not .Texts) (not .Editable)}}
+            <div id="text-nan">
+            <p>Nothing to show here... for now >:)</p>
+            <small id="profile-nan">@Mininet_Admins</small>
+        </div>
+        {{ else }}
+            {{ range .Texts }}
+                {{ if .LinkID }}
+                    {{ template "addlinkHTMX" . }}
+                {{ else }}
+                    {{ template "addtextHTMX" . }}
+                {{end}}
+            {{ end }}
         {{ end }}
     </div>
     {{ if .Editable }}
