@@ -5,6 +5,6 @@
 	   hx-swap="outerHTML" 
 	   hx-target="#text-{{.TextID}}">{{.Text}}
 	</p>
-	<small><span id="profile-{{.UserID}}" hx-get="/profile/{{.UserID}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">@{{.User}}</span> • {{.CreatedAtStr}} {{ if .Edited }}• Edited {{ end }} {{if and .Source (gt .Source 1)}}<span id="source-{{.Source}}-{{.TextID}}" hx-get="/page/{{.SourcePath}}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">• {{.SourceTitle}}</span>{{end}}</small>
+	<small><span id="profile-{{.UserID}}" hx-get="/profile/{{.UserID}}" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">@{{.User}}</span> • {{.CreatedAtStr}} {{ if .Edited }}• Edited {{ end }} {{if and .Source (gt .Source 1)}}<span id="source-{{.Source}}-{{.TextID}}" hx-get="/page/{{.SourcePath}}" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">• {{.SourceTitle}}</span>{{end}}</small>
 </div>
 {{ end }}

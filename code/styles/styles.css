@@ -171,6 +171,19 @@ div[id^="text-"] > p {
   white-space: pre-wrap;
 }
 
+a[id^="page-title-"] {
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+a[id^="page-title-"]:hover {
+  color: var(--accent-secondary);
+  border-bottom-color: var(--accent-secondary);
+}
+
+
 /* Link styling - specifically for addlink elements and source elements */
 div[id^="link-"] > p {
   position: relative;

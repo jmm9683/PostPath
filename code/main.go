@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"log"
 	"mininet/database"
 	"mininet/handlers"
@@ -11,7 +12,13 @@ import (
 )
 
 func main() {
-	handlers.SetupHelpers("templates/*.gohtml", []byte("very-secret-key"))
+	// Generate a proper key for production
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		log.Fatal(err)
+	}
+
+	handlers.SetupHelpers("templates/*.gohtml", key)
 
 	database.InitDB("./mininetDatabase.db")
 	defer database.DB().Close()
@@ -20,23 +27,27 @@ func main() {
 
 	mux := mux.NewRouter()
 
-	// Routes
+	// Static files
 	mux.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
-	mux.HandleFunc("/", handlers.IndexHandler)
-	mux.HandleFunc("/register", handlers.RegisterHandler)
-	mux.HandleFunc("/login", handlers.LoginHandler)
-	mux.HandleFunc("/logout", handlers.LogoutHandler)
-	mux.HandleFunc("/profile", handlers.ProfilePageHandler).Methods("GET")
-	mux.HandleFunc("/profile/{path:.*}", handlers.ProfilePageHandler).Methods("GET")
-	mux.HandleFunc("/home", handlers.PageHandler).Methods("GET")
-	mux.HandleFunc("/page/{path:.*}", handlers.PageHandler).Methods("GET")
-	mux.HandleFunc("/addText/{path:.*}", handlers.AddTextHandler).Methods("POST")
-	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.EditTextHandler).Methods("GET")
-	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}/cancel", handlers.EditTextCancelHandler).Methods("GET")
-	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.UpdateTextHandler).Methods("PUT")
-	mux.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.DeleteTextHandler).Methods("DELETE")
 
-	// Handle 404 by redirecting to home page
+	// Protected routes
+	protected := mux.NewRoute().Subrouter()
+	protected.Use(handlers.AuthMiddleware)
+	protected.HandleFunc("/", handlers.IndexHandler)
+	protected.HandleFunc("/register", handlers.RegisterHandler)
+	protected.HandleFunc("/login", handlers.LoginHandler)
+	protected.HandleFunc("/logout", handlers.LogoutHandler)
+	protected.HandleFunc("/profile", handlers.ProfilePageHandler).Methods("GET")
+	protected.HandleFunc("/profile/{path:.*}", handlers.ProfilePageHandler).Methods("GET")
+	protected.HandleFunc("/home", handlers.PageHandler).Methods("GET")
+	protected.HandleFunc("/page/{path:.*}", handlers.PageHandler).Methods("GET")
+	protected.HandleFunc("/addText/{path:.*}", handlers.AddTextHandler).Methods("POST")
+	protected.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.EditTextHandler).Methods("GET")
+	protected.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}/cancel", handlers.EditTextCancelHandler).Methods("GET")
+	protected.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.UpdateTextHandler).Methods("PUT")
+	protected.HandleFunc("/editText/{pageId:[0-9]+}/{textId:[0-9]+}", handlers.DeleteTextHandler).Methods("DELETE")
+
+	// Handle 404
 	mux.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})

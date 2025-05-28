@@ -21,21 +21,39 @@
                 function initEditTextarea(TextID) {
                     const textarea = document.getElementById(`edit-text-${TextID}`);
                     const saveBtn = document.getElementById(`save-btn-${TextID}`);
+                    const cancelBtn = document.getElementById(`cancel-btn-${TextID}`);
+                    const deleteBtn = document.getElementById(`delete-btn-${TextID}`);
                     const wrapper = textarea?.parentElement;
+                    let isClickingButton = false;
 
                     if (!textarea || !saveBtn || !wrapper) return;
+
+                    // Add mousedown listeners to buttons
+                    cancelBtn?.addEventListener('mousedown', () => {
+                        isClickingButton = true;
+                    });
+
+                    deleteBtn?.addEventListener('mousedown', () => {
+                        isClickingButton = true;
+                    });
 
                     wrapper.addEventListener("focusin", () => {
                         wrapper.dataset.focusInside = "true";
                     });
 
-                    wrapper.addEventListener("focusout", () => {
+                    wrapper.addEventListener("focusout", (event) => {
+                        if (isClickingButton) {
+                            isClickingButton = false;
+                            return;
+                        }
+                        
                         setTimeout(() => {
                             if (!wrapper.contains(document.activeElement)) {
                                 saveBtn.click();
                             }
                         }, 0);
                     });
+                    
                     textarea.focus();
                 }
 

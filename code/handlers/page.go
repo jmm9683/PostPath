@@ -60,17 +60,8 @@ func HandlerInit() {
 }
 
 func PageHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		render(w, r, "landing", nil)
-		return
-	}
+	user, userId := GetUserFromContext(r)
 
-	userId := getUserId(user)
-	if userId == -1 {
-		render(w, r, "landing", nil)
-		return
-	}
 	path := getPath(r)
 	if path == nil {
 		path = []int{HomePageID}
@@ -83,17 +74,8 @@ func PageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProfilePageHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		render(w, r, "landing", nil)
-		return
-	}
+	user, userId := GetUserFromContext(r)
 
-	userId := getUserId(user)
-	if userId == -1 {
-		render(w, r, "landing", nil)
-		return
-	}
 	path := getPath(r)
 	var profileId int
 	if path == nil {
@@ -106,20 +88,10 @@ func ProfilePageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddTextHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	user, userId := GetUserFromContext(r)
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
-		return
-	}
-
-	userId := getUserId(user)
-	if userId == -1 {
-		http.Error(w, "User not found", http.StatusInternalServerError)
 		return
 	}
 
@@ -190,18 +162,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditTextHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		render(w, r, "landing", nil)
-		return
-	}
-
-	userId := getUserId(user)
-	if userId == -1 {
-		http.Error(w, "User not found", http.StatusInternalServerError)
-		return
-	}
+	_, userId := GetUserFromContext(r)
 
 	pageId := getPageId(r)
 	textId := getTextId(r)
@@ -229,18 +190,6 @@ func EditTextHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userId := getUserId(user)
-	if userId == -1 {
-		http.Error(w, "User not found", http.StatusInternalServerError)
-		return
-	}
-
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
@@ -299,11 +248,7 @@ func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	user, _ := GetUserFromContext(r)
 
 	pageId := getPageId(r)
 	textId := getTextId(r)
@@ -341,12 +286,6 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTextHandler(w http.ResponseWriter, r *http.Request) {
-	user := getLoggedInUser(r)
-	if user == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
@@ -505,4 +444,14 @@ func getSourcePath(r *http.Request) string {
 
 	// Join all but the last segment
 	return strings.Join(segments[:len(segments)-1], "/")
+}
+
+func getUsername(userId int) string {
+	// Get User ID
+	var user string
+	err := database.DB().QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&user)
+	if err != nil {
+		return ""
+	}
+	return user
 }
