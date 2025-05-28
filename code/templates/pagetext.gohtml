@@ -46,6 +46,7 @@
         }'
         hx-target="#page"
         hx-swap="beforeend"
+        hx-on::after-request="document.getElementById('editor').value = '';"
         tabindex="0"
         aria-label="Save text">
         Save

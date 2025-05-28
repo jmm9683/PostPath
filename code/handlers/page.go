@@ -91,7 +91,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 	user, userId := GetUserFromContext(r)
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		htmxError(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
 
@@ -106,7 +106,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 	sourcePath := getSourcePath(r)
 
 	if text == "" {
-		http.Error(w, "Text cannot be empty", http.StatusBadRequest)
+		htmxError(w, "Text cannot be empty", http.StatusBadRequest)
 		return
 	}
 
@@ -122,22 +122,22 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 			// Link does not exist yet, insert it
 			result, err := database.DB().Exec(`INSERT INTO pages (title) VALUES (?)`, lText)
 			if err != nil {
-				http.Error(w, "Failed to insert into pages", http.StatusInternalServerError)
+				htmxError(w, "Failed to insert into pages", http.StatusInternalServerError)
 				return
 			}
 			lastInsertId, err := result.LastInsertId()
 			if err != nil {
-				http.Error(w, "Failed to get inserted link id", http.StatusInternalServerError)
+				htmxError(w, "Failed to get inserted link id", http.StatusInternalServerError)
 				return
 			}
 			linkID = int(lastInsertId)
 		} else if err != nil {
-			http.Error(w, "Failed to query pages", http.StatusInternalServerError)
+			htmxError(w, "Failed to query pages", http.StatusInternalServerError)
 			return
 		}
 		_, err = database.DB().Exec(`INSERT INTO pagetext (page_id, user_id, text, link_id, created_at, path, source) VALUES (?, ?, ?, ?, ?, ?, ?)`, pageId, userId, text, linkID, time.Now(), sourcePath, source)
 		if err != nil {
-			http.Error(w, "Failed to insert text into pagetext", http.StatusInternalServerError)
+			htmxError(w, "Failed to insert text into pagetext", http.StatusInternalServerError)
 			return
 		}
 
@@ -167,17 +167,17 @@ func EditTextHandler(w http.ResponseWriter, r *http.Request) {
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
-		http.Error(w, "TextID missing", http.StatusNotFound)
+		htmxError(w, "TextID missing", http.StatusNotFound)
 		return
 	}
 
 	var text string
 	err := database.DB().QueryRow(`SELECT text FROM pagetext WHERE id = ? and user_id = ?`, textId, userId).Scan(&text)
 	if err == sql.ErrNoRows {
-		http.Error(w, "You are not allowed to edit this text.", http.StatusNotFound)
+		htmxError(w, "You are not allowed to edit this text.", http.StatusNotFound)
 		return
 	} else if err != nil {
-		http.Error(w, "Database error", http.StatusInternalServerError)
+		htmxError(w, "Database error", http.StatusInternalServerError)
 		return
 	}
 
@@ -193,7 +193,7 @@ func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
-		http.Error(w, "TextID missing", http.StatusNotFound)
+		htmxError(w, "TextID missing", http.StatusNotFound)
 		return
 	}
 
@@ -253,12 +253,12 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
-		http.Error(w, "TextID missing", http.StatusNotFound)
+		htmxError(w, "TextID missing", http.StatusNotFound)
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		htmxError(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
@@ -268,7 +268,7 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 		// If empty, delete the text
 		_, err := database.DB().Exec(`DELETE FROM pagetext WHERE id = ? and page_id = ?`, textId, pageId)
 		if err != nil {
-			http.Error(w, "Failed to delete text", http.StatusInternalServerError)
+			htmxError(w, "Failed to delete text", http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -277,7 +277,7 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err := database.DB().Exec(`UPDATE pagetext SET text = ?, is_edited = 1 WHERE id = ? and page_id = ?`, text, textId, pageId)
 	if err != nil {
-		http.Error(w, "Failed to update text", http.StatusInternalServerError)
+		htmxError(w, "Failed to update text", http.StatusInternalServerError)
 		return
 	}
 
@@ -289,13 +289,13 @@ func DeleteTextHandler(w http.ResponseWriter, r *http.Request) {
 	pageId := getPageId(r)
 	textId := getTextId(r)
 	if textId == -1 {
-		http.Error(w, "TextID missing", http.StatusNotFound)
+		htmxError(w, "TextID missing", http.StatusNotFound)
 		return
 	}
 
 	_, err := database.DB().Exec(`DELETE FROM pagetext WHERE id = ? and page_id = ?`, textId, pageId)
 	if err != nil {
-		http.Error(w, "Failed to delete text", http.StatusInternalServerError)
+		htmxError(w, "Failed to delete text", http.StatusInternalServerError)
 		return
 	}
 
@@ -311,7 +311,7 @@ func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string,
 		var title string
 		err := database.DB().QueryRow(`SELECT title FROM pages WHERE id = ?`, id).Scan(&title)
 		if err != nil {
-			http.Error(w, "Page not found", http.StatusNotFound)
+			http.Redirect(w, r, "/home", http.StatusSeeOther)
 			return
 		}
 
@@ -454,4 +454,9 @@ func getUsername(userId int) string {
 		return ""
 	}
 	return user
+}
+
+func htmxError(w http.ResponseWriter, message string, code int) {
+	w.Header().Add("HX-Reswap", "none")
+	http.Error(w, message, code)
 }

@@ -66,20 +66,6 @@
                         initEditTextarea(id);
                     }
                 });
-
-                // Add animation triggers
-                document.body.addEventListener('htmx:beforeSwap', function(evt) {
-                    if (evt.detail.target.id === 'page') {
-                        evt.detail.shouldSwap = true;
-                        evt.detail.target.classList.add('typewriter-enter');
-                    }
-                });
-
-                document.body.addEventListener('htmx:afterSwap', function(evt) {
-                    if (evt.detail.target.id === 'page') {
-                        evt.detail.target.classList.add('typewriter-enter-active');
-                    }
-                });
             </script>
         </body>
     </html>

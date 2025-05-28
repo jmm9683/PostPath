@@ -109,18 +109,6 @@ body {
   padding-right: 2.5rem;
 }
 
-/* Typewriter animation classes */
-.typewriter-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.typewriter-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
-}
-
 /* Post styling */
 #page > div {
   background-color: var(--bg-secondary);
