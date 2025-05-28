@@ -259,7 +259,8 @@ span[id^="source-"]:hover {
 }
 
 .edit-btn:hover {
-  color: var(--accent-secondary);
+  color: var(--text);
+  background-color: var(--accent-secondary);
 }
 
 /* Save (✔) - Top Right */
