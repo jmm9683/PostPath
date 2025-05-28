@@ -55,6 +55,7 @@
                     });
                     
                     textarea.focus();
+                    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
                 }
 
                 document.body.addEventListener("htmx:afterSwap", (event) => {
