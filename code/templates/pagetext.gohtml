@@ -5,7 +5,7 @@
     {{range $index, $title := .PageTitles}}
         {{if eq $title.Title "Profile"}}
             @{{$.Username}}
-        {{else if eq $title.ID 0}}<a id="page-title-{{$index}}" hx-get="/page/0" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">./Mininet</a>
+        {{else if eq $title.ID 0}}<a id="page-title-{{$index}}" hx-get="/page/0" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">→ PostPath.app</a>
         {{else}}
         → <a id="page-title-{{$index}}" hx-get="/page{{range $i, $e := $PageTitles}}{{if le $i $index}}/{{$e.ID}}{{end}}{{end}}" hx-target="#home-content" hx-swap="outerHTML" hx-push-url="true">{{$title.Title}}</a>
         {{end}}
@@ -15,7 +15,7 @@
         {{ if and (not .Texts) (not .Editable)}}
             <div id="text-nan">
             <p>Nothing to show here... for now >:)</p>
-            <small id="profile-nan">@Mininet_Admins</small>
+            <small id="profile-nan">@PostPath_Admins</small>
         </div>
         {{ else }}
             {{ range .Texts }}

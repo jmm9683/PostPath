@@ -33,7 +33,7 @@ services:
       - ./nginx/www:/var/www/certbot
       - /var/run/docker.sock:/var/run/docker.sock
       - ./certbot/renew-and-reload.sh:/renew.sh
-    entrypoint: /bin/sh -c "/renew.sh"
+    entrypoint: /bin/sh -c "chmod +x /renew.sh && /renew.sh"
     networks:
       - webnet
 
