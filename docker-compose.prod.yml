@@ -21,7 +21,7 @@ services:
     volumes:
       - ./nginx/ssl:/etc/letsencrypt
       - ./nginx/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot -d yourdomain.com --email jake.morr@icloud.com --agree-tos --noninteractive
+    command: certonly --webroot -w /var/www/certbot -d postpath.app --email jake.morr@icloud.com --agree-tos --noninteractive
     networks:
       - webnet
 

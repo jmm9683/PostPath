@@ -1,7 +1,12 @@
-
 Local:
 docker compose up --build
 
 Production:
-docker compose -f docker-compose.yml -f docker-compose-prod.yml up --build -d --remove-orphans
+ssh deploy@your.droplet.ip
 
+sudo apt update && sudo apt install docker.io docker-compose git -y
+cd ~
+git clone git@github.com:youruser/your-repo.git
+cd your-repo
+
+docker compose -f docker-compose.yml -f docker-compose-prod.yml up --build -d --remove-orphans

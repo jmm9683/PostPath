@@ -2,7 +2,7 @@
 
 set -e
 
-CERT_PATH="/etc/letsencrypt/live/yourdomain.com/fullchain.pem"
+CERT_PATH="/etc/letsencrypt/live/postpath.app/fullchain.pem"
 CHECKSUM_FILE="/tmp/cert_checksum"
 
 # Initialize checksum file if not present
