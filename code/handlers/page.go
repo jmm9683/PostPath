@@ -3,8 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"log"
-	"mininet/database"
 	"net/http"
+	"postpath/database"
 	"strconv"
 	"strings"
 	"time"

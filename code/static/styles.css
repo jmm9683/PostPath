@@ -1,0 +1,369 @@
+:root {
+  --bg-primary: #192330;
+  --bg-secondary: #1F2937;
+  --text-primary: #cdcecf;
+  --text-secondary: #aeafb0;
+  --accent: #719cd6;
+  --accent-secondary: #86abdc;
+  --border: #2B3B52;
+}
+
+/* Viewport height fix for mobile */
+html {
+  height: -webkit-fill-available;
+}
+
+body {
+  margin: 0;
+  font-family: "JetBrains Mono", monospace;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+
+.top-nav {
+  background-color: var(--bg-secondary);
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-nav nav {
+  display: flex;
+  align-items: center;
+}
+
+.top-nav nav a {
+  color: var(--text-primary);
+  margin-right: 1.5rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.top-nav nav a:hover {
+  color: var(--accent);
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.nav-svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--text-primary);
+}
+
+.nav-logout {
+  margin-left: auto;
+}
+
+.nav-divider {
+  color: var(--border);
+  margin: 0 1rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.side-nav {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 10px;
+  min-height: calc(100vh - 50px); /* Adjust if top-nav height changes */
+}
+
+.side-nav nav a {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.rich-text {
+  width: -webkit-fill-available;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 1rem 0;
+  color: var(--text-primary);
+  font-family: "JetBrains Mono", monospace;
+  padding: 1rem;
+  min-height: 100px;
+  max-height: 40vh;
+  resize: vertical;
+}
+
+[contenteditable="true"].rich-text {
+  padding-right: 2.5rem;
+}
+
+/* Post styling */
+#page > div {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#page small {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Form styling */
+form {
+  background-color: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+input, textarea {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  width: 100%;
+  border-radius: 4px;
+}
+
+button {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent-secondary);
+}
+
+div[id^="text-"] > p {
+  white-space: pre-wrap;
+}
+
+a[id^="page-title-"] {
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+a[id^="page-title-"]:hover {
+  color: var(--accent-secondary);
+  border-bottom-color: var(--accent-secondary);
+}
+
+
+/* Link styling - specifically for addlink elements and source elements */
+div[id^="link-"] > p {
+  position: relative;
+  padding-right: 2rem;
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.2s;
+  width: fit-content;
+  margin: 0;
+}
+
+div[id^="link-"] > p::after {
+  content: "→";
+  position: absolute;
+  right: 0.5rem;
+  opacity: 1;
+  transform: translateX(0);
+  transition: transform 0.2s;
+  color: var(--accent);
+}
+
+div[id^="link-"] > p:hover {
+  color: var(--text-primary);
+  transform: translateX(5px);
+  border-bottom-color: var(--accent-secondary);
+}
+
+/* Profile link styling */
+span[id^="profile-"], span[id^="source-"] {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+span[id^="profile-"]:hover,
+span[id^="source-"]:hover {
+  color: var(--accent-secondary);
+  border-bottom-color: var(--accent-secondary);
+}
+
+#profile-nan {
+  color: var(--text-primary);
+  cursor: default;
+  border-bottom: none;
+}
+
+#profile-nan:hover {
+  color: var(--text-primary);
+  border-bottom: none;
+}
+
+#editor-save-btn {
+  width: 100%;
+  font-family: "JetBrains Mono", monospace;
+}
+
+
+.edit-container {
+  position: relative;
+}
+
+.edit-btn {
+  position: absolute;
+  background-color: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--accent);
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.edit-btn:hover {
+  color: var(--text);
+  background-color: var(--accent-secondary);
+}
+
+/* Save (✔) - Top Right */
+.save-btn {
+  top: 0.25rem;
+  right: 4.5rem;
+}
+
+/* Cancel (✖) - Right of Save */
+.cancel-btn {
+  top: 0.25rem;
+  right: 2.5rem;
+}
+
+/* Delete (🗑️) - Bottom Right */
+.delete-btn {
+  top: 0.25rem;
+  right: 0.5rem;
+}
+
+.icon-check,
+.icon-cancel,
+.trash-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+/* Landing page styles */
+.landing-container {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: left;
+}
+
+.landing-content h1 {
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.landing-content p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.landing-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.landing-buttons button {
+  font-size: 1.1rem;
+  padding: 0.75rem 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  #page > div {
+    padding: 1rem;
+  }
+  
+  
+  .rich-text {
+    padding: 1rem 2rem 1rem 1rem;
+    font-size: 16px; /* Prevent iOS zoom */
+    min-height: 80px;
+    max-height: 30vh;
+  }
+  
+  h2 {
+    font-size: 1.2rem;
+    word-break: break-all;
+  }
+
+  .editor-wrapper {
+    position: relative;
+  }
+  #editor-save-btn {
+    width: 100%;
+    margin-bottom: 60px; /* Space for keyboard */
+  }
+
+  /* Save (✔) - Top Right */
+  .save-btn {
+    top: 0.25rem;
+    right: 7rem;     /* Move further left */
+  }
+
+  /* Cancel (✖) - Right of Save */
+  .cancel-btn {
+    top: 0.25rem;
+    right: 4rem;     /* Move further left */
+  }
+
+  /* Delete (🗑️) - Bottom Right */
+  .delete-btn {
+    top: 0.25rem;
+    right: 1rem;     /* Move further left */
+  }
+
+  .icon-check,
+  .icon-cancel,
+  .trash-icon {
+    width: 1.5rem;   /* Slightly larger icons on mobile */
+    height: 1.5rem;
+  }
+}

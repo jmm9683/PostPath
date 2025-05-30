@@ -3,9 +3,9 @@ package main
 import (
 	"crypto/rand"
 	"log"
-	"mininet/database"
-	"mininet/handlers"
 	"net/http"
+	"postpath/database"
+	"postpath/handlers"
 
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
@@ -20,7 +20,7 @@ func main() {
 
 	handlers.SetupHelpers("templates/*.gohtml", key)
 
-	database.InitDB("./mininetDatabase.db")
+	database.InitDB("./postpath.db")
 	defer database.DB().Close()
 
 	handlers.HandlerInit()
@@ -28,7 +28,9 @@ func main() {
 	mux := mux.NewRouter()
 
 	// Static files
-	mux.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/", http.FileServer(http.Dir("styles"))))
+	fs := http.FileServer(http.Dir("static"))
+	mux.PathPrefix("/styles/").Handler(http.StripPrefix("/styles/", fs))
+	mux.PathPrefix("/images/").Handler(http.StripPrefix("/images/", fs))
 
 	// Protected routes
 	protected := mux.NewRoute().Subrouter()
