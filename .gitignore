@@ -2,3 +2,5 @@
 nginx/ssl/*
 code/tmp/*
 tmp/*
+*.DS_Store
+*.db
