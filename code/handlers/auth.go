@@ -24,6 +24,7 @@ const (
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
+		isHtmx := r.Header.Get("HX-Request") == "true"
 
 		// Check if user is already authenticated
 		if isValidSession(session) {
@@ -37,7 +38,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				}
 
 				if publicPaths[r.URL.Path] {
-					http.Redirect(w, r, "/home", http.StatusSeeOther)
+					if isHtmx {
+						w.Header().Set("HX-Redirect", "/home")
+					} else {
+						http.Redirect(w, r, "/home", http.StatusSeeOther)
+					}
 					return
 				}
 
@@ -62,7 +67,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		if isHtmx {
+			w.Header().Set("HX-Redirect", "/")
+		} else {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 	})
 }
 
@@ -163,7 +172,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var username, hash string
 
-		err := database.DB().QueryRow("SELECT id, username, password FROM users WHERE email = ?", email).Scan(&id, &username, &hash)
+		row, cancel := database.QueryRowWithTimeout(
+			"SELECT id, username, password FROM users WHERE email = ?", email)
+		defer cancel()
+
+		err := row.Scan(&id, &username, &hash)
 		if err != nil || bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) != nil {
 			render(w, r, "login", map[string]any{
 				"Error": "Invalid email or password",
@@ -228,11 +241,15 @@ func isValidSession(session *sessions.Session) bool {
 }
 
 func getUserId(user string) int {
-	// Get User ID
 	var userId int
-	err := database.DB().QueryRow("SELECT id FROM users WHERE username = ?", user).Scan(&userId)
+
+	row, cancel := database.QueryRowWithTimeout("SELECT id FROM users WHERE username = ?", user)
+	defer cancel()
+
+	err := row.Scan(&userId)
 	if err != nil {
 		return -1
 	}
+
 	return userId
 }

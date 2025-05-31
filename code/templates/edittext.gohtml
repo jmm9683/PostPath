@@ -1,7 +1,13 @@
 {{ define "edittextHTMX" }}
 <div id="text-{{.TextID}}" class="edit-container">
+	<div class="char-counter">
+        <span id="char-count-{{.TextID}}">{{len .Text}}</span>/500 characters
+    </div>
 	<textarea id="edit-text-{{.TextID}}"
-	class="rich-text">{{.Text}}</textarea>
+	class="rich-text"
+	maxlength="500"
+	oninput="updateCharacterCount(this, {{.TextID}})"
+    >{{.Text}}</textarea>
 
 	<!-- Save Button (Checkmark) -->
 	<button 

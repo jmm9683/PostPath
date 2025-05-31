@@ -1,9 +1,12 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"log"
+	"os"
 	"strings"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -11,10 +14,24 @@ import (
 var db *sql.DB
 
 func InitDB(dataSourceName string) {
+
+	if v := os.Getenv("CGO_ENABLED"); v != "1" {
+		log.Println("Warning: CGO_ENABLED is not set to 1, SQLite support may be limited")
+	}
+
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
 	if err != nil {
 		log.Fatal(err)
+	}
+	// Set connection pool settings
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
+
+	// Verify connection
+	if err = db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
 	}
 
 	createUserTable()
@@ -87,4 +104,32 @@ func modifyPageTextTable() {
 	if err != nil && !strings.Contains(err.Error(), "duplicate column name") {
 		log.Fatal(err)
 	}
+}
+
+// Add this function to handle timeouts
+func QueryWithTimeout(query string, args ...interface{}) (*sql.Rows, context.CancelFunc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	rows, err := db.QueryContext(ctx, query, args...)
+	if err != nil {
+		cancel() // safe to cancel if there's an error
+		return nil, nil, err
+	}
+	return rows, cancel, nil
+}
+
+// Returns sql.Row and a cancel function the caller must defer
+func QueryRowWithTimeout(query string, args ...interface{}) (*sql.Row, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	return db.QueryRowContext(ctx, query, args...), cancel
+}
+
+// Returns sql.Result and a cancel function the caller must defer
+func ExecWithTimeout(query string, args ...interface{}) (sql.Result, context.CancelFunc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	result, err := db.ExecContext(ctx, query, args...)
+	if err != nil {
+		cancel() // cancel early if failed
+		return nil, nil, err
+	}
+	return result, cancel, nil
 }

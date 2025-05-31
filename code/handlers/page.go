@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -10,6 +11,10 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+)
+
+const (
+	MaxInputLength = 500
 )
 
 var HomePageID, ProfilePageID int
@@ -35,28 +40,46 @@ type PageText struct {
 }
 
 func HandlerInit() {
-	rows, err := database.DB().Query(`SELECT id, title FROM pages WHERE title IN (?, ?)`, "Home", "Profile")
+	rows, cancel, err := database.QueryWithTimeout(`SELECT id, title FROM pages WHERE title IN (?, ?)`, "Home", "Profile")
 	if err != nil {
+		log.Printf("Query error: %v", err)
 		log.Fatalf("failed to query page IDs: %v", err)
 	}
+	defer cancel()
 	defer rows.Close()
+
+	foundHome := false
+	foundProfile := false
 
 	for rows.Next() {
 		var id int
 		var title string
 		if err := rows.Scan(&id, &title); err != nil {
+			log.Printf("Scan error: %v", err)
 			log.Fatalf("failed to scan row: %v", err)
 		}
 		switch title {
 		case "Home":
 			HomePageID = id
+			foundHome = true
 		case "Profile":
 			ProfilePageID = id
+			foundProfile = true
 		}
 	}
-	if HomePageID == 0 && ProfilePageID == 0 {
+
+	// Check for errors from iterating over rows
+	if err = rows.Err(); err != nil {
+		log.Printf("Row iteration error: %v", err)
+		log.Fatalf("error during row iteration: %v", err)
+	}
+
+	// Verify we found both pages
+	if !foundHome || !foundProfile {
 		log.Fatalf("missing required pages: home=%d, profile=%d", HomePageID, ProfilePageID)
 	}
+
+	log.Printf("HandlerInit complete: HomePageID=%d, ProfilePageID=%d", HomePageID, ProfilePageID)
 }
 
 func PageHandler(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +120,13 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 
 	text := r.FormValue("text")
 	text = strings.TrimSpace(text)
+
+	// Add length validation
+	if len(text) > MaxInputLength {
+		htmxError(w, "Text exceeds maximum length of 500 characters", http.StatusBadRequest)
+		return
+	}
+
 	path := getPath(r)
 	source := path[len(path)-1]
 	pageId := path[len(path)-1]
@@ -117,7 +147,9 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 		// One word: Handle as a link
 		text = lText
 		var linkID int
-		err := database.DB().QueryRow(`SELECT id FROM pages WHERE title = ?`, lText).Scan(&linkID)
+		row, cancel := database.QueryRowWithTimeout(`SELECT id FROM pages WHERE title = ?`, lText)
+		defer cancel()
+		err := row.Scan(&linkID)
 		if err == sql.ErrNoRows {
 			// Link does not exist yet, insert it
 			result, err := database.DB().Exec(`INSERT INTO pages (title) VALUES (?)`, lText)
@@ -172,7 +204,9 @@ func EditTextHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var text string
-	err := database.DB().QueryRow(`SELECT text FROM pagetext WHERE id = ? and user_id = ?`, textId, userId).Scan(&text)
+	row, cancel := database.QueryRowWithTimeout(`SELECT text FROM pagetext WHERE id = ? and user_id = ?`, textId, userId)
+	defer cancel()
+	err := row.Scan(&text)
 	if err == sql.ErrNoRows {
 		htmxError(w, "You are not allowed to edit this text.", http.StatusNotFound)
 		return
@@ -197,7 +231,7 @@ func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := database.DB().Query(`
+	rows, cancel, err := database.QueryWithTimeout(`
 		SELECT 
 			pagetext.page_id, 
 			pagetext.id, 
@@ -217,6 +251,7 @@ func EditTextCancelHandler(w http.ResponseWriter, r *http.Request) {
 
 	var text PageText
 	if err == nil {
+		defer cancel()
 		defer rows.Close()
 		for rows.Next() {
 			var pt PageText
@@ -264,6 +299,12 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 
 	text := strings.TrimSpace(r.FormValue("text"))
 
+	// Add length validation
+	if len(text) > MaxInputLength {
+		htmxError(w, "Text exceeds maximum length of 500 characters", http.StatusBadRequest)
+		return
+	}
+
 	if text == "" {
 		// If empty, delete the text
 		_, err := database.DB().Exec(`DELETE FROM pagetext WHERE id = ? and page_id = ?`, textId, pageId)
@@ -309,7 +350,10 @@ func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string,
 
 	for _, id := range path {
 		var title string
-		err := database.DB().QueryRow(`SELECT title FROM pages WHERE id = ?`, id).Scan(&title)
+		row, cancel := database.QueryRowWithTimeout(`SELECT title FROM pages WHERE id = ?`, id)
+		defer cancel()
+
+		err := row.Scan(&title)
 		if err != nil {
 			http.Redirect(w, r, "/home", http.StatusSeeOther)
 			return
@@ -320,9 +364,10 @@ func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string,
 	log.Println(pageTitles)
 	log.Println("Loading text for " + pageTitles[len(pageTitles)-1].Title)
 	var rows *sql.Rows
+	var cancel context.CancelFunc
 	var err error
 	if !filtered {
-		rows, err = database.DB().Query(`
+		rows, cancel, err = database.QueryWithTimeout(`
 		SELECT 
 			pagetext.page_id, 
 			pagetext.id, 
@@ -342,7 +387,7 @@ func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string,
 		ORDER BY pagetext.created_at ASC
 		`, pageId)
 	} else {
-		rows, err = database.DB().Query(`
+		rows, cancel, err = database.QueryWithTimeout(`
 		SELECT 
 			pagetext.page_id, 
 			pagetext.id, 
@@ -364,6 +409,7 @@ func renderPage(w http.ResponseWriter, r *http.Request, path []int, user string,
 	}
 	var texts []PageText
 	if err == nil {
+		defer cancel()
 		defer rows.Close()
 		for rows.Next() {
 			var pt PageText
@@ -447,13 +493,17 @@ func getSourcePath(r *http.Request) string {
 }
 
 func getUsername(userId int) string {
-	// Get User ID
-	var user string
-	err := database.DB().QueryRow("SELECT username FROM users WHERE id = ?", userId).Scan(&user)
+	var username string
+
+	row, cancel := database.QueryRowWithTimeout("SELECT username FROM users WHERE id = ?", userId)
+	defer cancel()
+
+	err := row.Scan(&username)
 	if err != nil {
 		return ""
 	}
-	return user
+
+	return username
 }
 
 func htmxError(w http.ResponseWriter, message string, code int) {

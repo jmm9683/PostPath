@@ -29,11 +29,16 @@
     </div>
     {{ if .Editable }}
     <div class="editor-wrapper">
+        <div class="char-counter">
+            <span id="char-count">0</span>/500 characters
+        </div>
         <textarea 
             id="editor" 
             class="rich-text" 
             placeholder="Start typing to learn more..."
             aria-label="Text editor"
+            maxlength="500"
+            oninput="updateCharacterCount(this)"
             tabindex="0"></textarea>
     </div>
 
@@ -55,9 +60,25 @@
 </main>
 
 <script>
-    document.addEventListener('htmx:afterRequest', function (e) {
-    document.getElementById('editor').value = '';
-    });
+    function updateCharacterCount(textarea, textId) {
+        const maxLength = 500;
+        const currentLength = textarea.value.length;
+        if (textId == undefined) {
+            document.getElementById('char-count').textContent = currentLength;
+        }
+        else {
+            document.getElementById('char-count-'+textId).textContent = currentLength;
+        }
+    }
 
+    document.addEventListener('htmx:afterRequest', function (e) {
+        document.getElementById('editor').value = '';
+        document.getElementById('char-count').textContent = '0';
+        const textId = evt.detail.elt.id.split('-').pop();
+        const textarea = document.getElementById('edit-text-' + textId);
+        if (textarea) {
+            updateCharacterCount(textarea, textId);
+        }
+    });
 </script>
 {{ end }}
