@@ -23,8 +23,5 @@ cd your-repo
 
 add certs from cloudflare to the certs directory
 
-docker ps # to get container ID/name
-docker stop $(docker ps -q) # stops all running containers
-docker rm $(docker ps -aq) # removes all containers
-
+docker-compose down
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d --remove-orphans
