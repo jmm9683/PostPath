@@ -6,8 +6,8 @@ services:
       - "8080"
     volumes:
       - type: bind
-        source: ./local
-        target: /app/local
+        source: ./code/local
+        target: /app/code/local
     networks:
       - webnet
     restart: always
