@@ -20,7 +20,7 @@ func main() {
 
 	handlers.SetupHelpers("templates/*.gohtml", key)
 
-	database.InitDB("./postpath.db")
+	database.InitDB("./local/postpath.db")
 	defer database.DB().Close()
 
 	handlers.HandlerInit()

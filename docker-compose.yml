@@ -4,6 +4,10 @@ services:
     container_name: go_app
     expose:
       - "8080"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
     networks:
       - webnet
     restart: always
