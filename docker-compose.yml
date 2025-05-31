@@ -5,7 +5,7 @@ services:
     expose:
       - "8080"
     volumes:
-      - ./code/local:/app/code/local:rw
+      - ./code/local:/app/local:rw
     networks:
       - webnet
     restart: always
