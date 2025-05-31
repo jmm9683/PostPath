@@ -4,38 +4,13 @@ services:
     container_name: nginx
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
     depends_on:
       - app
     networks:
       - webnet
     restart: always
-
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./nginx/ssl:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot -d postpath.app --email jake.morr@icloud.com --agree-tos --noninteractive
-    networks:
-      - webnet
-
-  certbot-renew:
-    image: certbot/certbot
-    container_name: certbot_renew
-    volumes:
-      - ./nginx/ssl:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./certbot/renew-and-reload.sh:/renew.sh
-    entrypoint: /bin/sh -c "chmod +x /renew.sh && /renew.sh"
-    networks:
-      - webnet
 
 networks:
   webnet:
