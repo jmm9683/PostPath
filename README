@@ -1,10 +1,21 @@
 Local:
+From ../Code/ directory, run: docker run --rm -it --name builder -v "$PWD":/app -w /app golang:1.23 bash
+
+                              apt update && apt install -y gcc libc6-dev   # install CGO deps
+                              go build -o main .
+                              exit
+
+                              docker cp builder:/app/main ./linuxBuild
+
 docker compose up --build
 
 Production:
 ssh deploy@your.droplet.ip
 
 sudo apt update && sudo apt install docker.io docker-compose git -y
+sudo apt install gh
+gh auth login
+
 cd ~
 git clone git@github.com:youruser/your-repo.git
 cd your-repo
@@ -13,4 +24,4 @@ docker ps # to get container ID/name
 docker stop $(docker ps -q) # stops all running containers
 docker rm $(docker ps -aq) # removes all containers
 
-docker compose -f docker-compose.yml -f docker-compose-prod.yml up --build -d --remove-orphans
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d --remove-orphans
