@@ -5,9 +5,7 @@ services:
     expose:
       - "8080"
     volumes:
-      - type: bind
-        source: ./code/local
-        target: /app/code/local
+      - ./code/local:/app/code/local:rw
     networks:
       - webnet
     restart: always
