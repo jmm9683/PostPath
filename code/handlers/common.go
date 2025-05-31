@@ -21,7 +21,7 @@ func SetupHelpers(templateGlob string, sessionKey []byte) {
 		Path:     "/",
 		MaxAge:   3600 * 24, // 1 day
 		HttpOnly: true,
-		Secure:   false, // Changed to true for HTTPS
+		Secure:   true, // Changed to true for HTTPS
 		SameSite: http.SameSiteStrictMode,
 	}
 }

@@ -3,7 +3,8 @@ From ../Code/ directory, run: docker run --rm -it --name builder -v "$PWD":/app 
 
                               apt update && apt install -y gcc libc6-dev   # install CGO deps
                               go build -o main .
-                              exit
+
+                              {exit}
 
                               docker cp builder:/app/main ./linuxBuild
 
@@ -19,6 +20,8 @@ gh auth login
 cd ~
 git clone git@github.com:youruser/your-repo.git
 cd your-repo
+
+add certs from cloudflare to the certs directory
 
 docker ps # to get container ID/name
 docker stop $(docker ps -q) # stops all running containers
