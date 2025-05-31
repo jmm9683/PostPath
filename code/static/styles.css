@@ -336,7 +336,7 @@ span[id^="source-"]:hover {
   
   
   .rich-text {
-    margin-top: 0;
+    margin-top: 1rem;
     padding: 1rem 2rem 1rem 1rem;
     font-size: 16px; /* Prevent iOS zoom */
     min-height: 80px;

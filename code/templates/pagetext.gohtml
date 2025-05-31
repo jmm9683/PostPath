@@ -70,15 +70,5 @@
             document.getElementById('char-count-'+textId).textContent = currentLength;
         }
     }
-
-    document.addEventListener('htmx:afterRequest', function (e) {
-        document.getElementById('editor').value = '';
-        document.getElementById('char-count').textContent = '0';
-        const textId = evt.detail.elt.id.split('-').pop();
-        const textarea = document.getElementById('edit-text-' + textId);
-        if (textarea) {
-            updateCharacterCount(textarea, textId);
-        }
-    });
 </script>
 {{ end }}
