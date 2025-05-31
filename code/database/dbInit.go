@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -14,10 +13,6 @@ import (
 var db *sql.DB
 
 func InitDB(dataSourceName string) {
-
-	if v := os.Getenv("CGO_ENABLED"); v != "1" {
-		log.Println("Warning: CGO_ENABLED is not set to 1, SQLite support may be limited")
-	}
 
 	var err error
 	db, err = sql.Open("sqlite3", dataSourceName)
