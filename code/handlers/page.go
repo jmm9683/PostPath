@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/gorilla/mux"
 )
@@ -122,7 +123,7 @@ func AddTextHandler(w http.ResponseWriter, r *http.Request) {
 	text = strings.TrimSpace(text)
 
 	// Add length validation
-	if len(text) > MaxInputLength {
+	if utf8.RuneCountInString(text) > MaxInputLength {
 		htmxError(w, "Text exceeds maximum length of 500 characters", http.StatusBadRequest)
 		return
 	}
@@ -300,7 +301,7 @@ func UpdateTextHandler(w http.ResponseWriter, r *http.Request) {
 	text := strings.TrimSpace(r.FormValue("text"))
 
 	// Add length validation
-	if len(text) > MaxInputLength {
+	if utf8.RuneCountInString(text) > MaxInputLength {
 		htmxError(w, "Text exceeds maximum length of 500 characters", http.StatusBadRequest)
 		return
 	}

@@ -21,7 +21,8 @@ cd ~
 git clone git@github.com:youruser/your-repo.git
 cd your-repo
 
-add certs from cloudflare to the certs directory
+ssl - add certs from cloudflare origin server certs to the certs directory
+mtls - get origin cert from https://developers.cloudflare.com/ssl/origin-configuration/authenticated-origin-pull/set-up/zone-level/
 
 docker-compose down
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d --remove-orphans
